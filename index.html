@@ -147,9 +147,18 @@ const A=[['Th',90],['Pa',91],['U',92],['Np',93],['Pu',94],['Am',95],['Cm',96],['
 function frow(els){return g()+g()+els.map(([s,n])=>c(s,n)).join('')+g()+g();}
 document.getElementById('fb').innerHTML=frow(L)+frow(A);
 
+let activeEl=null;
+
 function showPop(el,num,sym){
   const pw=document.getElementById('pw');
   const pop=document.getElementById('popup');
+  // If clicking the same element that is already open, close and return
+  if(activeEl===el && pop.style.display==='block'){
+    pop.style.display='none';
+    activeEl=null;
+    return;
+  }
+  activeEl=el;
   const wr=pw.getBoundingClientRect();
   const er=el.getBoundingClientRect();
   const popW=216;
@@ -159,7 +168,6 @@ function showPop(el,num,sym){
   if(left<4)left=4;
   pop.style.top=top+'px';
   pop.style.left=left+'px';
-  pop.style.display='block';
   const cat=catLabel(num);
   document.getElementById('pop-bar').style.background=barColor(num);
   document.getElementById('pop-sym').textContent=sym;
@@ -170,9 +178,17 @@ function showPop(el,num,sym){
   catEl.style.background=cat.bg;
   catEl.style.color=cat.c;
   document.getElementById('pop-desc').textContent=DATA[num]?.desc||'';
-  setTimeout(()=>document.addEventListener('click',closePop,{once:true}),10);
+  pop.style.display='block';
 }
-function closePop(){document.getElementById('popup').style.display='none';}
+
+// Single persistent listener: close only when clicking outside an element cell and outside the popup
+document.addEventListener('click',function(e){
+  const pop=document.getElementById('popup');
+  if(pop.style.display!=='block')return;
+  if(e.target.closest('.cl')||e.target.closest('#popup'))return;
+  pop.style.display='none';
+  activeEl=null;
+});
 </script>
 </body>
 </html>
